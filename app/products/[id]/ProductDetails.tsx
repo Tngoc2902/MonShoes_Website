@@ -1,8 +1,9 @@
 "use client";
 
+import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
-import NavbarLogin from "@/components/navbar_login";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/contexts/cart-context";
 import { motion } from "framer-motion";
 import {
@@ -12,6 +13,8 @@ import {
   ShoppingCart,
   Star,
   Truck,
+  Minus,
+  Plus,
 } from "lucide-react";
 
 import Image from "next/image";
@@ -49,7 +52,7 @@ export default function ProductDetails({ product }: { product: Product }) {
 
   return (
     <>
-      <NavbarLogin />
+      <Navbar />
       <div className="container py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
           {/* Product Images */}
@@ -131,66 +134,77 @@ export default function ProductDetails({ product }: { product: Product }) {
 
             <div className="space-y-4">
               <div>
-                <h3 className="font-medium mb-2">Kích thước</h3>
-                <div className="flex flex-wrap gap-2">
+                <h3 className="font-medium mb-3">Kích thước</h3>
+                <div className="grid grid-cols-4 sm:grid-cols-7 gap-2">
                   {["38", "39", "40", "41", "42", "43", "44"].map((size) => (
                     <motion.button
                       key={size}
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => setSelectedSize(size)}
-                      className={`px-4 py-2 border rounded-md ${
+                      className={`px-3 py-2 border rounded-md text-sm font-medium transition-colors ${
                         selectedSize === size
-                          ? "border-primary bg-primary/10 text-primary"
-                          : "border-border hover:border-primary"
+                          ? "border-primary bg-primary text-primary-foreground"
+                          : "border-border hover:border-primary hover:bg-primary/5"
                       }`}
                     >
                       {size}
                     </motion.button>
                   ))}
                 </div>
+                {!selectedSize && (
+                  <p className="text-sm text-muted-foreground mt-2">
+                    Vui lòng chọn kích thước
+                  </p>
+                )}
               </div>
 
               <div>
-                <h3 className="font-medium mb-2">Số lượng</h3>
+                <h3 className="font-medium mb-3">Số lượng</h3>
                 <div className="flex items-center gap-4">
                   <div className="flex items-center border rounded-md">
                     <Button
                       variant="ghost"
                       size="icon"
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                      disabled={quantity <= 1}
+                      className="h-10 w-10"
                     >
-                      -
+                      <Minus className="h-4 w-4" />
                     </Button>
-                    <span className="w-12 text-center">{quantity}</span>
+                    <span className="w-12 text-center font-medium">{quantity}</span>
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => setQuantity(quantity + 1)}
+                      onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
+                      disabled={quantity >= product.stock}
+                      className="h-10 w-10"
                     >
-                      +
+                      <Plus className="h-4 w-4" />
                     </Button>
                   </div>
-                  <span className="text-sm text-muted-foreground">
-                    {product.stock} sản phẩm có sẵn
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="secondary" className="text-xs">
+                      {product.stock} sản phẩm có sẵn
+                    </Badge>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col sm:flex-row gap-3">
               <Button
                 size="lg"
-                className="flex-1 gap-2"
+                className="flex-1 gap-2 h-12"
                 onClick={handleAddToCart}
+                disabled={!selectedSize}
               >
+                <ShoppingCart className="h-5 w-5" />
                 Thêm vào giỏ hàng
               </Button>
-              <Button variant="outline" size="icon">
+              <Button variant="outline" size="lg" className="h-12 px-4">
                 <Heart className="h-5 w-5" />
-              </Button>
-              <Button variant="outline" size="icon" onClick={handleAddToCart}>
-                <ShoppingCart className="h-5 w-5" />
+                <span className="sr-only">Yêu thích</span>
               </Button>
             </div>
 

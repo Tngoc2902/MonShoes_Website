@@ -1,6 +1,8 @@
 import { productImages } from "./product-images";
 
-export const products = [
+const defaultSizes = ["35", "36", "37", "38", "39", "40", "41", "42", "43", "44"];
+
+const productsData = [
   {
     id: 1,
     name: "Nike Air Max 270",
@@ -453,3 +455,8 @@ export const products = [
     ],
   },
 ];
+
+export const products = productsData.map((product) => ({
+  ...product,
+  sizes: defaultSizes,
+}));

@@ -1,163 +1,167 @@
 "use client";
 
-import AuthModal from "@/components/auth-modal";
-import CheckoutModal from "@/components/checkout-modal";
-import { Badge } from "@/components/ui/badge";
+import Navbar from "@/components/navbar";
+import Footer from "@/components/footer";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { useCart } from "@/contexts/cart-context";
-import { LogOut, Phone, Search, ShoppingCart, Truck } from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { motion } from "framer-motion";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
-export default function Navbar() {
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
-  const [search, setSearch] = useState("");
-  const { items } = useCart() as { items: any[] };
+export default function LoginPage() {
+  const [loginForm, setLoginForm] = useState({
+    email: "",
+    password: "",
+  });
+  const [registerForm, setRegisterForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  const handleSearch = (e: { preventDefault: () => void }) => {
-    if (e) e.preventDefault();
-    if (search.trim()) {
-      router.push(`/search?q=${encodeURIComponent(search.trim())}`);
-    }
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    // Simulate login
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    toast.success("Đăng nhập thành công!");
+    router.push("/");
+    setIsLoading(false);
   };
 
-  const handleLogout = () => {
-    // TODO: thêm logic đăng xuất ở đây (xóa token, session...)
-    router.push("/login");
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (registerForm.password !== registerForm.confirmPassword) {
+      toast.error("Mật khẩu xác nhận không khớp!");
+      return;
+    }
+
+    setIsLoading(true);
+
+    // Simulate registration
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    toast.success("Đăng ký thành công!");
+    router.push("/");
+    setIsLoading(false);
   };
 
   return (
-    <>
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-16 items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Link href="/" className="font-bold text-xl">
-              MON<span className="text-primary">SHOES</span>
-            </Link>
-          </div>
-          <nav className="hidden md:flex items-center gap-6">
-            <Link
-              href="/"
-              className="text-sm font-medium hover:text-primary transition-colors"
-            >
-              Trang chủ
-            </Link>
-            <Link
-              href="#"
-              className="text-sm font-medium hover:text-primary transition-colors"
-            >
-              Giảm Giá
-            </Link>
-            <Link
-              href="/products"
-              className="text-sm font-medium hover:text-primary transition-colors"
-            >
-              Tất cả sản phẩm
-            </Link>
-            <Link
-              href="/contact"
-              className="text-sm font-medium hover:text-primary transition-colors"
-            >
-              Liên hệ
-            </Link>
-          </nav>
+    <div className="min-h-screen flex flex-col">
+      <Navbar />
+      <main className="flex-grow flex items-center justify-center py-12">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="w-full max-w-md"
+        >
+          <Card>
+            <CardHeader className="text-center">
+              <CardTitle className="text-2xl">Chào mừng đến với MONSHOES</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Tabs defaultValue="login" className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="login">Đăng nhập</TabsTrigger>
+                  <TabsTrigger value="register">Đăng ký</TabsTrigger>
+                </TabsList>
 
-          {/* Thanh tìm kiếm và các nút */}
-          <div className="flex items-center gap-4">
-            <form
-              className="flex items-center gap-2"
-              onSubmit={handleSearch}
-              autoComplete="off"
-            >
-              <Search className="h-5 w-5" />
-              <input
-                type="text"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Tìm kiếm sản phẩm..."
-                className="ml-2 hidden md:inline-block bg-transparent outline-none placeholder:text-muted-foreground"
-              />
-            </form>
+                <TabsContent value="login" className="space-y-4">
+                  <form onSubmit={handleLogin} className="space-y-4">
+                    <div>
+                      <Label htmlFor="login-email">Email</Label>
+                      <Input
+                        id="login-email"
+                        type="email"
+                        placeholder="Nhập email của bạn"
+                        value={loginForm.email}
+                        onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="login-password">Mật khẩu</Label>
+                      <Input
+                        id="login-password"
+                        type="password"
+                        placeholder="Nhập mật khẩu"
+                        value={loginForm.password}
+                        onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <Button type="submit" className="w-full" disabled={isLoading}>
+                      {isLoading ? "Đang đăng nhập..." : "Đăng nhập"}
+                    </Button>
+                  </form>
+                </TabsContent>
 
-            {/* Nút giỏ hàng */}
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsCheckoutModalOpen(true)}
-              className="relative"
-              type="button"
-            >
-              <ShoppingCart className="h-5 w-5" />
-              <span className="sr-only">Giỏ hàng</span>
-              {items.length > 0 && (
-                <Badge
-                  variant="destructive"
-                  className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0"
-                >
-                  {items.length}
-                </Badge>
-              )}
-            </Button>
-
-            {/* Menu người dùng */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="flex items-center gap-2 px-2 py-1 rounded-full border border-gray-300 shadow bg-white"
-                >
-                  <span className="text-base font-semibold text-black hidden md:inline">
-                    Trịnh Khánh Ngọc
-                  </span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="end"
-                className="w-56 rounded-2xl p-4 bg-white shadow-lg border-2 border-gray-200 flex flex-col gap-4"
-                style={{ minWidth: 220 }}
-              >
-                <DropdownMenuItem
-                  onClick={() => router.push("/carts")}
-                  className="flex items-center justify-between w-full border rounded-xl px-4 py-3 text-lg font-semibold hover:bg-gray-100"
-                >
-                  Đơn hàng
-                  <Truck className="ml-2 h-6 w-6" />
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => router.push("/contact")}
-                  className="flex items-center justify-between w-full border rounded-xl px-4 py-3 text-lg font-semibold hover:bg-gray-100"
-                >
-                  Liên hệ
-                  <Phone className="ml-2 h-6 w-6" />
-                </DropdownMenuItem>
-                <DropdownMenuItem className="flex items-center justify-between w-full border rounded-xl px-4 py-3 text-lg font-semibold hover:bg-gray-100">
-                  Đăng xuất
-                  <LogOut className="ml-2 h-6 w-6" />
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
-      </header>
-
-      {/* Modal đăng nhập và thanh toán */}
-      <AuthModal
-        isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
-      />
-      <CheckoutModal
-        isOpen={isCheckoutModalOpen}
-        onClose={() => setIsCheckoutModalOpen(false)}
-      />
-    </>
+                <TabsContent value="register" className="space-y-4">
+                  <form onSubmit={handleRegister} className="space-y-4">
+                    <div>
+                      <Label htmlFor="register-name">Họ và tên</Label>
+                      <Input
+                        id="register-name"
+                        placeholder="Nhập họ và tên"
+                        value={registerForm.name}
+                        onChange={(e) => setRegisterForm({ ...registerForm, name: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="register-email">Email</Label>
+                      <Input
+                        id="register-email"
+                        type="email"
+                        placeholder="Nhập email"
+                        value={registerForm.email}
+                        onChange={(e) => setRegisterForm({ ...registerForm, email: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="register-password">Mật khẩu</Label>
+                      <Input
+                        id="register-password"
+                        type="password"
+                        placeholder="Nhập mật khẩu"
+                        value={registerForm.password}
+                        onChange={(e) => setRegisterForm({ ...registerForm, password: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="register-confirm-password">Xác nhận mật khẩu</Label>
+                      <Input
+                        id="register-confirm-password"
+                        type="password"
+                        placeholder="Nhập lại mật khẩu"
+                        value={registerForm.confirmPassword}
+                        onChange={(e) => setRegisterForm({ ...registerForm, confirmPassword: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <Button type="submit" className="w-full" disabled={isLoading}>
+                      {isLoading ? "Đang đăng ký..." : "Đăng ký"}
+                    </Button>
+                  </form>
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </main>
+      <Footer />
+    </div>
   );
 }

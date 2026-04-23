@@ -11,9 +11,8 @@ import {
 } from "@react-three/drei";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Loader2 } from "lucide-react";
-import { motion } from "framer-motion";
+import { SafeMotion } from "@/components/safe-motion";
 import dynamic from "next/dynamic";
-import router from "next/router";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 useGLTF.preload("shoe.glb");
@@ -145,7 +144,7 @@ export default function Hero() {
       </div>
       <section className="relative w-full min-h-[90vh] overflow-hidden bg-white">
         <div className="container grid lg:grid-cols-2 gap-8 py-12 md:py-24 items-center">
-          <motion.div
+          <SafeMotion
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
@@ -192,9 +191,9 @@ export default function Hero() {
                 <span className="text-muted-foreground">Khách hàng</span>
               </div>
             </div>
-          </motion.div>
+          </SafeMotion>
 
-          <motion.div
+          <SafeMotion
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.2 }}
@@ -202,7 +201,7 @@ export default function Hero() {
           >
             {isMounted && <ShoeCanvas />}
             <div className="absolute -bottom-10 -left-10 -right-10 h-20 bg-gradient-to-t from-background to-transparent z-10" />
-          </motion.div>
+          </SafeMotion>
         </div>
         <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-background to-transparent" />
 
