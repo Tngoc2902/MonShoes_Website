@@ -4,6 +4,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { ScrollToTop } from "@/components/scroll-to-top";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import Script from "next/script";
 import { Toaster } from "sonner";
 import "./globals.css";
 
@@ -20,8 +21,34 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="vi">
-      <body className={inter.className}>
+    <html lang="vi" suppressHydrationWarning>
+      <head>
+        <Script id="remove-extension-attrs" strategy="beforeInteractive">{`
+          (function () {
+            try {
+              function clean(el) {
+                if (!el || !el.attributes) return;
+                var attrs = Array.prototype.slice.call(el.attributes);
+                for (var i = 0; i < attrs.length; i++) {
+                  var name = attrs[i].name;
+                  if (name === "bis_register" || name.indexOf("__processed_") === 0) {
+                    el.removeAttribute(name);
+                  }
+                }
+              }
+
+              clean(document.documentElement);
+              if (document.body) clean(document.body);
+              if (!document.body) {
+                document.addEventListener("DOMContentLoaded", function () {
+                  clean(document.body);
+                });
+              }
+            } catch (e) {}
+          })();
+        `}</Script>
+      </head>
+      <body className={inter.className} suppressHydrationWarning>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

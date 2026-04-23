@@ -1,7 +1,6 @@
 "use client";
 
 import AuthModal from "@/components/auth-modal";
-import CheckoutModal from "@/components/checkout-modal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,19 +20,18 @@ import { useAuth } from "@/contexts/auth-context";
 import { LogOut, Menu, Phone, Search, ShoppingCart, Truck } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 
 export default function Navbar() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [search, setSearch] = useState("");
   const { items = [] as any[] } = useCart();
   const { user, isAuthenticated, logout } = useAuth();
   const router = useRouter();
 
-  const handleSearch = (e: { preventDefault: () => void }) => {
-    if (e) e.preventDefault();
+  const handleSearch = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     if (search.trim()) {
       router.push(`/search?q=${encodeURIComponent(search.trim())}`);
     }
@@ -46,7 +44,7 @@ export default function Navbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <header className="sticky top-0 z-50 w-full border-b bg-background shadow-sm">
         <div className="container flex h-16 items-center justify-between">
           <div className="flex items-center gap-2">
             <Link href="/" className="font-bold text-xl">
@@ -83,7 +81,7 @@ export default function Navbar() {
           {/* Thanh tìm kiếm và các nút */}
           <div className="flex items-center gap-4">
             <form
-              className="flex items-center gap-2"
+              className="hidden md:flex items-center gap-2"
               onSubmit={handleSearch}
               autoComplete="off"
             >
@@ -93,15 +91,25 @@ export default function Navbar() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Tìm kiếm sản phẩm..."
-                className="ml-2 hidden md:inline-block bg-transparent outline-none placeholder:text-muted-foreground"
+                className="ml-2 bg-transparent outline-none placeholder:text-muted-foreground"
               />
             </form>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="md:hidden"
+              type="button"
+              onClick={() => setMenuOpen(true)}
+              aria-label="Tìm kiếm"
+            >
+              <Search className="h-5 w-5" />
+            </Button>
 
             {/* Nút giỏ hàng */}
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => setIsCheckoutModalOpen(true)}
+              onClick={() => router.push("/cart")}
               className="relative"
               type="button"
             >
@@ -156,6 +164,29 @@ export default function Navbar() {
                   <DrawerTitle>Menu</DrawerTitle>
                 </DrawerHeader>
                 <div className="space-y-4 px-4 pb-6">
+                  <form
+                    className="flex items-center gap-2 pt-2"
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      if (!search.trim()) return;
+                      router.push(
+                        `/search?q=${encodeURIComponent(search.trim())}`
+                      );
+                      setMenuOpen(false);
+                    }}
+                    autoComplete="off"
+                  >
+                    <input
+                      type="text"
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                      placeholder="Tìm kiếm sản phẩm..."
+                      className="flex-1 px-3 py-2 border rounded-md text-sm"
+                    />
+                    <Button type="submit" size="sm">
+                      Tìm
+                    </Button>
+                  </form>
                   <Link
                     href="/"
                     onClick={() => setMenuOpen(false)}
@@ -177,6 +208,15 @@ export default function Navbar() {
                   >
                     Tất cả sản phẩm
                   </Link>
+                  {isAuthenticated ? (
+                    <Link
+                      href="/carts"
+                      onClick={() => setMenuOpen(false)}
+                      className="block text-lg font-medium text-gray-800 hover:text-primary"
+                    >
+                      Đơn hàng
+                    </Link>
+                  ) : null}
                   <Link
                     href="/contact"
                     onClick={() => setMenuOpen(false)}
@@ -211,45 +251,47 @@ export default function Navbar() {
 
             {/* Menu người dùng */}
             {isAuthenticated ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    className="flex items-center gap-2 px-2 py-1 rounded-full border border-gray-300 shadow bg-white"
+              <div className="hidden md:block">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      className="flex items-center gap-2 px-2 py-1 rounded-full border border-gray-300 shadow bg-white"
+                    >
+                      <span className="text-base font-semibold text-black hidden md:inline">
+                        {user?.name ?? "Tài khoản"}
+                      </span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    align="end"
+                    className="w-56 rounded-2xl p-4 bg-white shadow-lg border-2 border-gray-200 flex flex-col gap-4"
+                    style={{ minWidth: 220 }}
                   >
-                    <span className="text-base font-semibold text-black hidden md:inline">
-                      {user?.name ?? "Tài khoản"}
-                    </span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  align="end"
-                  className="w-56 rounded-2xl p-4 bg-white shadow-lg border-2 border-gray-200 flex flex-col gap-4"
-                  style={{ minWidth: 220 }}
-                >
-                  <DropdownMenuItem
-                    onClick={() => router.push("/carts")}
-                    className="flex items-center justify-between w-full border rounded-xl px-4 py-3 text-lg font-semibold hover:bg-gray-100"
-                  >
-                    Đơn hàng
-                    <Truck className="ml-2 h-6 w-6" />
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => router.push("/contact")}
-                    className="flex items-center justify-between w-full border rounded-xl px-4 py-3 text-lg font-semibold hover:bg-gray-100"
-                  >
-                    Liên hệ
-                    <Phone className="ml-2 h-6 w-6" />
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={handleLogout}
-                    className="flex items-center justify-between w-full border rounded-xl px-4 py-3 text-lg font-semibold hover:bg-gray-100"
-                  >
-                    Đăng xuất
-                    <LogOut className="ml-2 h-6 w-6" />
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                    <DropdownMenuItem
+                      onClick={() => router.push("/carts")}
+                      className="flex items-center justify-between w-full border rounded-xl px-4 py-3 text-lg font-semibold hover:bg-gray-100"
+                    >
+                      Đơn hàng
+                      <Truck className="ml-2 h-6 w-6" />
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => router.push("/contact")}
+                      className="flex items-center justify-between w-full border rounded-xl px-4 py-3 text-lg font-semibold hover:bg-gray-100"
+                    >
+                      Liên hệ
+                      <Phone className="ml-2 h-6 w-6" />
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={handleLogout}
+                      className="flex items-center justify-between w-full border rounded-xl px-4 py-3 text-lg font-semibold hover:bg-gray-100"
+                    >
+                      Đăng xuất
+                      <LogOut className="ml-2 h-6 w-6" />
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             ) : null}
           </div>
         </div>
@@ -259,10 +301,6 @@ export default function Navbar() {
       <AuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
-      />
-      <CheckoutModal
-        isOpen={isCheckoutModalOpen}
-        onClose={() => setIsCheckoutModalOpen(false)}
       />
     </>
   );

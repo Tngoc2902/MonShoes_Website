@@ -14,14 +14,20 @@ import { useAuth } from "@/contexts/auth-context";
 import { Menu, Search, ShoppingCart } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import AuthModal from "./auth-modal";
-import CheckoutModal from "./checkout-modal";
 import { ThemeToggle } from "./theme-toggle";
+
+
+const bannerAds = [
+  "🎉 Miễn phí vận chuyển toàn quốc cho đơn hàng từ 1.000.000₫! 🎉",
+  "🔥 Sản phâm mới đã về! Khám phá ngay bộ sưu tập giày thể thao 2025!",
+  "👟 Mua 1 tặng 1 cho các mẫu giày seanker! Chỉ trong tuần này!",
+  "💥 Giảm giá 20% cho đơn hàng đầu tiên! Sử dụng mã: WELCOME20",
+];
 
 export default function Navbar() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [search, setSearch] = useState("");
   const { items } = useCart();
@@ -34,8 +40,8 @@ export default function Navbar() {
   // }
 
   // Xử lý tìm kiếm khi submit form hoặc nhấn Enter
-  const handleSearch = (e) => {
-    if (e) e.preventDefault();
+  const handleSearch = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     if (search.trim()) {
       // Chuyển hướng đến trang search với query q
       router.push(`/search?q=${encodeURIComponent(search.trim())}`);
@@ -44,7 +50,7 @@ export default function Navbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <header className="sticky top-0 z-50 w-full border-b bg-background shadow-sm">
         <div className="container flex h-16 items-center justify-between">
           <div className="flex items-center gap-2">
             <Link href="/" className="font-bold text-xl">
@@ -109,7 +115,7 @@ export default function Navbar() {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => setIsCheckoutModalOpen(true)}
+              onClick={() => router.push("/cart")}
               className="relative"
               type="button"
             >
@@ -193,6 +199,27 @@ export default function Navbar() {
                 >
                   Giày Order
                 </Link>
+                <form
+                  className="flex items-center gap-2 py-4"
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    if (search.trim()) {
+                      router.push(`/search?q=${encodeURIComponent(search.trim())}`);
+                      setMenuOpen(false);
+                    }
+                  }}
+                >
+                  <input
+                    type="text"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    placeholder="Tìm kiếm sản phẩm..."
+                    className="flex-1 px-3 py-2 border rounded-md text-sm"
+                  />
+                  <Button type="submit" size="sm">
+                    Tìm
+                  </Button>
+                </form>
                 <div className="flex items-center justify-center py-4">
                   <ThemeToggle />
                 </div>
@@ -225,10 +252,6 @@ export default function Navbar() {
       <AuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
-      />
-      <CheckoutModal
-        isOpen={isCheckoutModalOpen}
-        onClose={() => setIsCheckoutModalOpen(false)}
       />
     </>
   );

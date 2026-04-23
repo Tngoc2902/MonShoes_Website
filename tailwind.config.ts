@@ -13,7 +13,11 @@ const config = {
   theme: {
     container: {
       center: true,
-      padding: "2rem",
+      padding: {
+        DEFAULT: "1rem",
+        sm: "1.5rem",
+        lg: "2rem",
+      },
       screens: {
         "2xl": "1400px",
       },
@@ -76,6 +80,12 @@ const config = {
     },
   },
   plugins: [require("tailwindcss-animate")],
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["./*"]
+    }
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "declarations.d.ts", ".next/types/**/*.ts"]
 } satisfies Config
 
 export default config

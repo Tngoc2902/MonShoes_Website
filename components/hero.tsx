@@ -162,20 +162,21 @@ export default function Hero() {
               tiến, thiết kế hiện đại và sự thoải mái vượt trội.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 mt-4">
-              <Link href="/products">
-                <Button
-                  size="lg"
-                  className="gap-2"
-                  // onClick={() => router.push("/products/allproducts")}
-                >
+              <Button
+                asChild
+                size="lg"
+                variant="destructive"
+                className="gap-2 w-full sm:w-auto"
+              >
+                <Link href="/products">
                   Mua ngay <ArrowRight className="h-4 w-4" />
-                </Button>
-              </Link>
-              <Button size="lg" variant="outline">
+                </Link>
+              </Button>
+              <Button size="lg" variant="outline" className="w-full sm:w-auto">
                 Khám phá bộ sưu tập
               </Button>
             </div>
-            <div className="flex items-center gap-6 mt-8">
+            <div className="flex items-center gap-4 md:gap-6 mt-8">
               <div className="flex flex-col">
                 <span className="text-3xl font-bold">500+</span>
                 <span className="text-muted-foreground">Mẫu giày</span>
@@ -197,7 +198,7 @@ export default function Hero() {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="relative h-[500px] w-full"
+            className="relative h-[300px] md:h-[500px] w-full"
           >
             {isMounted && <ShoeCanvas />}
             <div className="absolute -bottom-10 -left-10 -right-10 h-20 bg-gradient-to-t from-background to-transparent z-10" />
@@ -220,6 +221,3 @@ export default function Hero() {
     </>
   );
 }
-// function setBannerIndex(arg0: (prev: any) => number) {
-//   throw new Error("Function not implemented.");
-// }

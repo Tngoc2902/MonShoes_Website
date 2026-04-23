@@ -37,24 +37,38 @@ export default function ProductDetails({ product }: { product: Product }) {
   const [selectedSize, setSelectedSize] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-  const { addToCart } = useCart() as unknown as {
-    addToCart: (id: number, size: string) => void;
-  };
+  const { items, addToCart, updateQuantity } = useCart();
 
   const handleAddToCart = () => {
     if (!selectedSize) {
       toast.error("Vui lòng chọn kích thước");
       return;
     }
-    addToCart(product.id, selectedSize);
+
+    const productId = String(product.id);
+    const existingItem = items.find(
+      (item) => item.id === productId && item.size === selectedSize
+    );
+
+    if (!existingItem) {
+      addToCart(productId, selectedSize);
+      updateQuantity(productId, Math.min(product.stock, quantity), selectedSize);
+    } else {
+      updateQuantity(
+        productId,
+        Math.min(product.stock, existingItem.quantity + quantity),
+        selectedSize
+      );
+    }
+
     toast.success("Đã thêm vào giỏ hàng");
   };
 
   return (
     <>
       <Navbar />
-      <div className="container py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+      <div className="container py-6 sm:py-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-12">
           {/* Product Images */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -71,11 +85,12 @@ export default function ProductDetails({ product }: { product: Product }) {
                 }
                 alt={product.name}
                 fill
+                sizes="(max-width: 768px) 100vw, 50vw"
                 className="object-cover"
                 priority
               />
             </div>
-            <div className="grid grid-cols-4 gap-4">
+            <div className="grid grid-cols-4 gap-2 sm:gap-4">
               {product.gallery?.map((image, index) => (
                 <motion.div
                   key={index}
@@ -89,6 +104,7 @@ export default function ProductDetails({ product }: { product: Product }) {
                     src={image}
                     alt={`${product.name} - Image ${index + 1}`}
                     fill
+                    sizes="(max-width: 768px) 25vw, 10vw"
                     className="object-cover"
                   />
                 </motion.div>
@@ -104,8 +120,8 @@ export default function ProductDetails({ product }: { product: Product }) {
             className="space-y-6"
           >
             <div>
-              <h1 className="text-3xl font-bold">{product.name}</h1>
-              <div className="flex items-center gap-2 mt-2">
+              <h1 className="text-2xl sm:text-3xl font-bold">{product.name}</h1>
+              <div className="flex flex-wrap items-center gap-2 mt-2">
                 <div className="flex items-center">
                   <Star className="h-5 w-5 fill-primary text-primary" />
                   <span className="ml-1 font-medium">{product.rating}</span>
@@ -117,7 +133,7 @@ export default function ProductDetails({ product }: { product: Product }) {
             </div>
 
             <div className="space-y-2">
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
                 <span className="text-2xl font-bold">{product.price}</span>
                 {product.originalPrice && (
                   <span className="text-lg text-muted-foreground line-through">
@@ -161,8 +177,8 @@ export default function ProductDetails({ product }: { product: Product }) {
 
               <div>
                 <h3 className="font-medium mb-3">Số lượng</h3>
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center border rounded-md">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+                  <div className="flex items-center border rounded-md w-fit self-start">
                     <Button
                       variant="ghost"
                       size="icon"
@@ -183,7 +199,7 @@ export default function ProductDetails({ product }: { product: Product }) {
                       <Plus className="h-4 w-4" />
                     </Button>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 self-start">
                     <Badge variant="secondary" className="text-xs">
                       {product.stock} sản phẩm có sẵn
                     </Badge>
@@ -192,7 +208,7 @@ export default function ProductDetails({ product }: { product: Product }) {
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex gap-3">
               <Button
                 size="lg"
                 className="flex-1 gap-2 h-12"
@@ -202,7 +218,11 @@ export default function ProductDetails({ product }: { product: Product }) {
                 <ShoppingCart className="h-5 w-5" />
                 Thêm vào giỏ hàng
               </Button>
-              <Button variant="outline" size="lg" className="h-12 px-4">
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-12 w-12 shrink-0"
+              >
                 <Heart className="h-5 w-5" />
                 <span className="sr-only">Yêu thích</span>
               </Button>
