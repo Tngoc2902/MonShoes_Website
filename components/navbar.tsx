@@ -2,19 +2,30 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
 import { useCart } from "@/contexts/cart-context";
+import { useAuth } from "@/contexts/auth-context";
 import { Menu, Search, ShoppingCart } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import AuthModal from "./auth-modal";
 import CheckoutModal from "./checkout-modal";
+import { ThemeToggle } from "./theme-toggle";
 
 export default function Navbar() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [search, setSearch] = useState("");
   const { items } = useCart();
+  const { user, isAuthenticated, logout } = useAuth();
   const router = useRouter();
 
   // Hàm tìm kiếm theo id (nếu muốn tìm chính xác theo id)
@@ -113,29 +124,102 @@ export default function Navbar() {
                 </Badge>
               )}
             </Button>
-            <Button
-              className="hidden md:flex"
-              onClick={() => setIsAuthModalOpen(true)}
-              type="button"
-            >
-              Đăng nhập
-            </Button>
-            {/* <Button
-              className="hidden md:flex"
-              onClick={() => setIsAuthModalOpen(true)}
-            >
-              Đăng ký
-            </Button> */}
+            <ThemeToggle />
+            {!isAuthenticated ? (
+              <Button
+                className="hidden md:flex"
+                onClick={() => setIsAuthModalOpen(true)}
+                type="button"
+              >
+                Đăng nhập
+              </Button>
+            ) : (
+              <div className="hidden md:flex items-center gap-2">
+                <span className="text-sm font-medium text-gray-700">
+                  {user?.name}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => logout()}
+                  type="button"
+                >
+                  Đăng xuất
+                </Button>
+              </div>
+            )}
             <Button
               variant="ghost"
               size="icon"
               className="md:hidden"
               type="button"
+              onClick={() => setMenuOpen(true)}
             >
               <Menu className="h-5 w-5" />
               <span className="sr-only">Menu</span>
             </Button>
           </form>
+          <Drawer open={menuOpen} onOpenChange={setMenuOpen}>
+            <DrawerContent>
+              <DrawerHeader>
+                <DrawerTitle>Menu</DrawerTitle>
+              </DrawerHeader>
+              <div className="space-y-4 px-4 pb-6">
+                <Link
+                  href="/"
+                  onClick={() => setMenuOpen(false)}
+                  className="block text-lg font-medium text-gray-800 hover:text-primary"
+                >
+                  Trang chủ
+                </Link>
+                <Link
+                  href="#"
+                  onClick={() => setMenuOpen(false)}
+                  className="block text-lg font-medium text-gray-800 hover:text-primary"
+                >
+                  Giảm Giá
+                </Link>
+                <Link
+                  href="/products"
+                  onClick={() => setMenuOpen(false)}
+                  className="block text-lg font-medium text-gray-800 hover:text-primary"
+                >
+                  Tất cả sản phẩm
+                </Link>
+                <Link
+                  href="/contact"
+                  onClick={() => setMenuOpen(false)}
+                  className="block text-lg font-medium text-gray-800 hover:text-primary"
+                >
+                  Giày Order
+                </Link>
+                <div className="flex items-center justify-center py-4">
+                  <ThemeToggle />
+                </div>
+                {isAuthenticated ? (
+                  <Button
+                    className="w-full"
+                    onClick={() => {
+                      logout();
+                      setMenuOpen(false);
+                    }}
+                  >
+                    Đăng xuất
+                  </Button>
+                ) : (
+                  <Button
+                    className="w-full"
+                    onClick={() => {
+                      setMenuOpen(false);
+                      setIsAuthModalOpen(true);
+                    }}
+                  >
+                    Đăng nhập
+                  </Button>
+                )}
+              </div>
+            </DrawerContent>
+          </Drawer>
         </div>
       </header>
       <AuthModal

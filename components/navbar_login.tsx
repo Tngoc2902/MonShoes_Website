@@ -5,13 +5,20 @@ import CheckoutModal from "@/components/checkout-modal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useCart } from "@/contexts/cart-context";
-import { LogOut, Phone, Search, ShoppingCart, Truck } from "lucide-react";
+import { useAuth } from "@/contexts/auth-context";
+import { LogOut, Menu, Phone, Search, ShoppingCart, Truck } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -19,8 +26,10 @@ import { useState } from "react";
 export default function Navbar() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [search, setSearch] = useState("");
   const { items = [] as any[] } = useCart();
+  const { user, isAuthenticated, logout } = useAuth();
   const router = useRouter();
 
   const handleSearch = (e: { preventDefault: () => void }) => {
@@ -31,6 +40,7 @@ export default function Navbar() {
   };
 
   const handleLogout = () => {
+    logout();
     router.push("/");
   };
 
@@ -106,47 +116,141 @@ export default function Navbar() {
                 </Badge>
               )}
             </Button>
-
-            {/* Menu người dùng */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="flex items-center gap-2 px-2 py-1 rounded-full border border-gray-300 shadow bg-white"
-                >
-                  <span className="text-base font-semibold text-black hidden md:inline">
-                    Trịnh Khánh Ngọc
-                  </span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="end"
-                className="w-56 rounded-2xl p-4 bg-white shadow-lg border-2 border-gray-200 flex flex-col gap-4"
-                style={{ minWidth: 220 }}
+            {!isAuthenticated ? (
+              <Button
+                className="hidden md:flex"
+                onClick={() => setIsAuthModalOpen(true)}
+                type="button"
               >
-                <DropdownMenuItem
-                  onClick={() => router.push("/carts")}
-                  className="flex items-center justify-between w-full border rounded-xl px-4 py-3 text-lg font-semibold hover:bg-gray-100"
-                >
-                  Đơn hàng
-                  <Truck className="ml-2 h-6 w-6" />
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => router.push("/contact")}
-                  className="flex items-center justify-between w-full border rounded-xl px-4 py-3 text-lg font-semibold hover:bg-gray-100"
-                >
-                  Liên hệ
-                  <Phone className="ml-2 h-6 w-6" />
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={handleLogout}
-                  className="flex items-center justify-between w-full border rounded-xl px-4 py-3 text-lg font-semibold hover:bg-gray-100"
+                Đăng nhập
+              </Button>
+            ) : (
+              <div className="hidden md:flex items-center gap-2">
+                <span className="text-sm font-medium text-gray-700">
+                  {user?.name}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => logout()}
+                  type="button"
                 >
                   Đăng xuất
-                  <LogOut className="ml-2 h-6 w-6" />
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                </Button>
+              </div>
+            )}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="md:hidden"
+              type="button"
+              onClick={() => setMenuOpen(true)}
+            >
+              <Menu className="h-5 w-5" />
+              <span className="sr-only">Menu</span>
+            </Button>
+
+            <Drawer open={menuOpen} onOpenChange={setMenuOpen}>
+              <DrawerContent>
+                <DrawerHeader>
+                  <DrawerTitle>Menu</DrawerTitle>
+                </DrawerHeader>
+                <div className="space-y-4 px-4 pb-6">
+                  <Link
+                    href="/"
+                    onClick={() => setMenuOpen(false)}
+                    className="block text-lg font-medium text-gray-800 hover:text-primary"
+                  >
+                    Trang chủ
+                  </Link>
+                  <Link
+                    href="#"
+                    onClick={() => setMenuOpen(false)}
+                    className="block text-lg font-medium text-gray-800 hover:text-primary"
+                  >
+                    Giảm Giá
+                  </Link>
+                  <Link
+                    href="/products"
+                    onClick={() => setMenuOpen(false)}
+                    className="block text-lg font-medium text-gray-800 hover:text-primary"
+                  >
+                    Tất cả sản phẩm
+                  </Link>
+                  <Link
+                    href="/contact"
+                    onClick={() => setMenuOpen(false)}
+                    className="block text-lg font-medium text-gray-800 hover:text-primary"
+                  >
+                    Liên hệ
+                  </Link>
+                  {isAuthenticated ? (
+                    <Button
+                      className="w-full"
+                      onClick={() => {
+                        logout();
+                        setMenuOpen(false);
+                      }}
+                    >
+                      Đăng xuất
+                    </Button>
+                  ) : (
+                    <Button
+                      className="w-full"
+                      onClick={() => {
+                        setMenuOpen(false);
+                        setIsAuthModalOpen(true);
+                      }}
+                    >
+                      Đăng nhập
+                    </Button>
+                  )}
+                </div>
+              </DrawerContent>
+            </Drawer>
+
+            {/* Menu người dùng */}
+            {isAuthenticated ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="flex items-center gap-2 px-2 py-1 rounded-full border border-gray-300 shadow bg-white"
+                  >
+                    <span className="text-base font-semibold text-black hidden md:inline">
+                      {user?.name ?? "Tài khoản"}
+                    </span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  align="end"
+                  className="w-56 rounded-2xl p-4 bg-white shadow-lg border-2 border-gray-200 flex flex-col gap-4"
+                  style={{ minWidth: 220 }}
+                >
+                  <DropdownMenuItem
+                    onClick={() => router.push("/carts")}
+                    className="flex items-center justify-between w-full border rounded-xl px-4 py-3 text-lg font-semibold hover:bg-gray-100"
+                  >
+                    Đơn hàng
+                    <Truck className="ml-2 h-6 w-6" />
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => router.push("/contact")}
+                    className="flex items-center justify-between w-full border rounded-xl px-4 py-3 text-lg font-semibold hover:bg-gray-100"
+                  >
+                    Liên hệ
+                    <Phone className="ml-2 h-6 w-6" />
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={handleLogout}
+                    className="flex items-center justify-between w-full border rounded-xl px-4 py-3 text-lg font-semibold hover:bg-gray-100"
+                  >
+                    Đăng xuất
+                    <LogOut className="ml-2 h-6 w-6" />
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : null}
           </div>
         </div>
       </header>

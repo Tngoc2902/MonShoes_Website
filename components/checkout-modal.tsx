@@ -41,7 +41,7 @@ export default function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
   });
 
   // State cho xác nhận xóa sản phẩm
-  const [deleteItem, setDeleteItem] = useState<null | { product: any }>(null);
+  const [deleteItem, setDeleteItem] = useState<null | { product: any; size: string }>(null);
 
   // Hàm chuyển giá về số nếu là string
   const parsePrice = (price: any) => {
@@ -116,7 +116,8 @@ export default function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
                               onClick={() =>
                                 updateQuantity(
                                   item.product.id,
-                                  Math.max(1, item.quantity - 1)
+                                  Math.max(1, item.quantity - 1),
+                                  item.size
                                 )
                               }
                             >
@@ -132,7 +133,8 @@ export default function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
                               onClick={() =>
                                 updateQuantity(
                                   item.product.id,
-                                  item.quantity + 1
+                                  item.quantity + 1,
+                                  item.size
                                 )
                               }
                             >
@@ -309,7 +311,7 @@ export default function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
               variant="destructive"
               onClick={() => {
                 if (deleteItem) {
-                  removeFromCart(deleteItem.product.id);
+                  removeFromCart(deleteItem.product.id, deleteItem.size);
                   setDeleteItem(null);
                 }
               }}

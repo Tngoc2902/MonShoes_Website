@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Star, ShoppingCart } from "lucide-react";
-import { motion } from "framer-motion";
+import { SafeMotion } from "@/components/safe-motion";
 import { products } from "@/data/products";
 
 const containerVariants = {
@@ -33,7 +33,7 @@ export default function FeaturedProducts() {
   return (
     <section className="w-full py-12 md:py-24 bg-background">
       <div className="container px-4 md:px-6">
-        <motion.div
+        <SafeMotion
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -48,8 +48,9 @@ export default function FeaturedProducts() {
               Khám phá những mẫu giày thể thao được yêu thích nhất hiện nay
             </p>
           </div>
-        </motion.div>
-        <motion.div
+        </SafeMotion>
+
+        <SafeMotion
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
@@ -57,72 +58,73 @@ export default function FeaturedProducts() {
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-12"
         >
           {products.slice(0, 8).map((product) => (
-            <motion.div
-              key={product.id}
-              variants={itemVariants}
-              whileHover={{ y: -10 }}
-              className="overflow-hidden group"
-            >
-              <Link href={`/products/${product.id}`}>
-                <Card className="h-full">
-                  <div className="relative aspect-square overflow-hidden">
-                    <Image
-                      src={product.image}
-                      alt={product.name}
-                      fill
-                      className="object-cover transition-transform group-hover:scale-105"
-                    />
-                    <div className="absolute top-2 right-2 flex flex-col gap-2">
-                      {product.discount > 0 && (
-                        <Badge variant="destructive" className="text-xs">
-                          Giảm {product.discount}%
-                        </Badge>
-                      )}
-                      {product.new && (
-                        <Badge className="text-xs bg-primary">Mới</Badge>
-                      )}
+            <div key={product.id} className="overflow-hidden group">
+              <SafeMotion
+                variants={itemVariants}
+                whileHover={{ y: -10 }}
+              >
+                <Link href={`/products/${product.id}`}>
+                  <Card className="h-full">
+                    <div className="relative aspect-square overflow-hidden">
+                      <Image
+                        src={product.image}
+                        alt={product.name}
+                        fill
+                        className="object-cover transition-transform group-hover:scale-105"
+                      />
+                      <div className="absolute top-2 right-2 flex flex-col gap-2">
+                        {product.discount > 0 && (
+                          <Badge variant="destructive" className="text-xs">
+                            Giảm {product.discount}%
+                          </Badge>
+                        )}
+                        {product.new && (
+                          <Badge className="text-xs bg-primary">Mới</Badge>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                  <CardContent className="p-4">
-                    <h3 className="font-semibold text-lg">{product.name}</h3>
-                    <div className="flex items-center gap-2 mt-1">
-                      <div className="flex items-center">
-                        <Star className="h-4 w-4 fill-primary text-primary" />
-                        <span className="text-sm font-medium ml-1">
-                          {product.rating}
+                    <CardContent className="p-4">
+                      <h3 className="font-semibold text-lg">{product.name}</h3>
+                      <div className="flex items-center gap-2 mt-1">
+                        <div className="flex items-center">
+                          <Star className="h-4 w-4 fill-primary text-primary" />
+                          <span className="text-sm font-medium ml-1">
+                            {product.rating}
+                          </span>
+                        </div>
+                        <span className="text-xs text-muted-foreground">
+                          ({product.reviews} đánh giá)
                         </span>
                       </div>
-                      <span className="text-xs text-muted-foreground">
-                        ({product.reviews} đánh giá)
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2 mt-2">
-                      <span className="font-bold">{product.price}</span>
-                      {product.originalPrice && (
-                        <span className="text-sm text-muted-foreground line-through">
-                          {product.originalPrice}
-                        </span>
-                      )}
-                    </div>
-                  </CardContent>
-                  <CardFooter className="p-4 pt-0">
-                    <motion.div
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="w-full"
-                    >
-                      <Button className="w-full gap-2">
-                        <ShoppingCart className="h-4 w-4" />
-                        Mua ngay
-                      </Button>
-                    </motion.div>
-                  </CardFooter>
-                </Card>
-              </Link>
-            </motion.div>
+                      <div className="flex items-center gap-2 mt-2">
+                        <span className="font-bold">{product.price}</span>
+                        {product.originalPrice && (
+                          <span className="text-sm text-muted-foreground line-through">
+                            {product.originalPrice}
+                          </span>
+                        )}
+                      </div>
+                    </CardContent>
+                    <CardFooter className="p-4 pt-0">
+                      <SafeMotion
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="w-full"
+                      >
+                        <Button className="w-full gap-2">
+                          <ShoppingCart className="h-4 w-4" />
+                          Mua ngay
+                        </Button>
+                      </SafeMotion>
+                    </CardFooter>
+                  </Card>
+                </Link>
+              </SafeMotion>
+            </div>
           ))}
-        </motion.div>
-        <motion.div
+        </SafeMotion>
+
+        <SafeMotion
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -134,7 +136,7 @@ export default function FeaturedProducts() {
               Xem tất cả sản phẩm
             </Button>
           </Link>
-        </motion.div>
+        </SafeMotion>
       </div>
     </section>
   );
