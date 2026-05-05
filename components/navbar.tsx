@@ -140,19 +140,17 @@ export default function Navbar() {
                 Đăng nhập
               </Button>
             ) : (
-              <div className="hidden md:flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => router.push("/account")}
+                type="button"
+                className="hidden md:flex gap-1"
+              >
                 <span className="text-sm font-medium text-gray-700">
                   {user?.name}
                 </span>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => logout()}
-                  type="button"
-                >
-                  Đăng xuất
-                </Button>
-              </div>
+              </Button>
             )}
             <Button
               variant="ghost"
@@ -224,15 +222,13 @@ export default function Navbar() {
                   <ThemeToggle />
                 </div>
                 {isAuthenticated ? (
-                  <Button
-                    className="w-full"
-                    onClick={() => {
-                      logout();
-                      setMenuOpen(false);
-                    }}
+                  <Link
+                    href="/account"
+                    onClick={() => setMenuOpen(false)}
+                    className="block text-lg font-medium text-gray-800 hover:text-primary"
                   >
-                    Đăng xuất
-                  </Button>
+                    Tài khoản của tôi
+                  </Link>
                 ) : (
                   <Button
                     className="w-full"

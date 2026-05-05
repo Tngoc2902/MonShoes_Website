@@ -5,8 +5,16 @@ import { ReactNode } from "react";
 import { loadLocalStorage, removeLocalStorage, saveLocalStorage } from "@/lib/storage";
 
 type User = {
+  id?: string;
   name: string;
   email: string;
+  phone?: string;
+  address?: string;
+  city?: string;
+  district?: string;
+  ward?: string;
+  postalCode?: string;
+  avatar?: string;
 };
 
 type AuthContextType = {
@@ -14,6 +22,7 @@ type AuthContextType = {
   isAuthenticated: boolean;
   login: (user: User) => void;
   logout: () => void;
+  updateUser: (updates: Partial<User>) => void;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -40,6 +49,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       user,
       isAuthenticated: Boolean(user),
       login: (nextUser: User) => setUser(nextUser),
+      updateUser: (updates: Partial<User>) => {
+        if (user) {
+          setUser({ ...user, ...updates });
+        }
+      },
       logout: () => setUser(null),
     }),
     [user]
