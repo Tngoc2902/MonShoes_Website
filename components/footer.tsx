@@ -80,18 +80,22 @@ export default function Footer() {
           <motion.div variants={itemVariants} className="space-y-4">
             <h3 className="font-bold">Liên kết nhanh</h3>
             <ul className="space-y-2">
-              {["Trang chủ", "Giảm giá", "Tất cả sản phẩm", "Giày Order"].map(
-                (link, index) => (
+              {[
+                  { name: "Trang chủ", href: "/" },
+                  { name: "Giảm giá", href: "/sale" }, 
+                  { name: "Tất cả sản phẩm", href: "/products" },
+                  { name: "Liên hệ", href: "/contact" }
+                ].map((link, index) => (
                   <motion.li
                     key={index}
                     whileHover={{ x: 5 }}
                     transition={{ type: "spring", stiffness: 300 }}
                   >
                     <Link
-                      href="#"
+                      href={link.href}
                       className="text-muted-foreground hover:text-primary"
                     >
-                      {link}
+                      {link.name}
                     </Link>
                   </motion.li>
                 )

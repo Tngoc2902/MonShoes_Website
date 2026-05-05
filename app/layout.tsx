@@ -2,6 +2,7 @@ import { CartProvider } from "@/contexts/cart-context";
 import { AuthProvider } from "@/contexts/auth-context";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ScrollToTop } from "@/components/scroll-to-top";
+import ClientOnly from "@/components/ClientOnly";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import Script from "next/script";
@@ -21,48 +22,53 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="vi" suppressHydrationWarning>
+    <html lang="vi">
       <head>
-        <Script id="remove-extension-attrs" strategy="beforeInteractive">{`
+        <Script id="remove-extension-attrs" strategy="afterInteractive">{`
           (function () {
             try {
-              function clean(el) {
+              function cleanExtensionAttrs(el) {
                 if (!el || !el.attributes) return;
-                var attrs = Array.prototype.slice.call(el.attributes);
-                for (var i = 0; i < attrs.length; i++) {
-                  var name = attrs[i].name;
-                  if (name === "bis_register" || name.indexOf("__processed_") === 0) {
-                    el.removeAttribute(name);
+                var attrsToRemove = [];
+                for (var i = 0; i < el.attributes.length; i++) {
+                  var name = el.attributes[i].name;
+                  if (
+                    name === "bis_register" ||
+                    name === "bis_use" ||
+                    name.indexOf("__processed_") === 0 ||
+                    name.indexOf("data-bis") === 0
+                  ) {
+                    attrsToRemove.push(name);
                   }
                 }
-              }
-
-              clean(document.documentElement);
-              if (document.body) clean(document.body);
-              if (!document.body) {
-                document.addEventListener("DOMContentLoaded", function () {
-                  clean(document.body);
+                attrsToRemove.forEach(function(name) {
+                  el.removeAttribute(name);
                 });
               }
+
+              cleanExtensionAttrs(document.documentElement);
+              if (document.body) cleanExtensionAttrs(document.body);
             } catch (e) {}
           })();
         `}</Script>
       </head>
       <body className={inter.className} suppressHydrationWarning>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <AuthProvider>
-            <CartProvider>
-              {children}
-              <ScrollToTop />
-              <Toaster />
-            </CartProvider>
-          </AuthProvider>
-        </ThemeProvider>
+        <ClientOnly>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <AuthProvider>
+              <CartProvider>
+                {children}
+                <ScrollToTop />
+                <Toaster />
+              </CartProvider>
+            </AuthProvider>
+          </ThemeProvider>
+        </ClientOnly>
       </body>
     </html>
   );

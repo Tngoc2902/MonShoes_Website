@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { products } from "@/data/products";
 import {
   ChevronLeft,
   ChevronRight,
@@ -19,8 +18,22 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState, useMemo, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
+
+// Định nghĩa kiểu dữ liệu cho Sản phẩm trả về từ API
+interface Product {
+  id: number;
+  name: string;
+  price: string;
+  originalPrice?: string;
+  discount?: number;
+  rating: number;
+  reviews: number;
+  image: string;
+  gallery?: string[];
+  stock: number;
+}
 
 const PRODUCTS_PER_PAGE = 12;
 
@@ -163,6 +176,9 @@ function Pagination({
     pages = [1, "...", page - 1, page, page + 1, "...", totalPages];
   }
 
+  // Ẩn pagination nếu không có trang nào
+  if (totalPages <= 1) return null;
+
   return (
     <div className="flex items-center gap-1 text-lg">
       <button
@@ -236,66 +252,63 @@ function Pagination({
 
 export default function AllProducts() {
   const searchParams = useSearchParams();
+  
+  // Trạng thái bộ lọc
   const [sort, setSort] = useState("default");
   const [priceFilter, setPriceFilter] = useState<string[]>([]);
   const [brandFilter, setBrandFilter] = useState<string[]>([]);
   const [sizeFilter, setSizeFilter] = useState<string[]>([]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
-  // Get current page from URL or default to 1
+  // Trạng thái phân trang
   const currentPage = parseInt(searchParams.get("page") || "1", 10);
   const [page, setPage] = useState(currentPage);
 
-  // Memoized filter functions for better performance
-  const filterByPrice = useCallback((product: { price: string }) => {
-    if (priceFilter.length === 0) return true;
-    const price = Number(product.price.replace(/\D/g, ""));
-    return (
-      (priceFilter.includes("1") && price < 1000000) ||
-      (priceFilter.includes("2") && price >= 1000000 && price < 2000000) ||
-      (priceFilter.includes("3") && price >= 2000000 && price < 5000000) ||
-      (priceFilter.includes("4") && price >= 5000000)
-    );
-  }, [priceFilter]);
+  // Trạng thái dữ liệu API
+  const [products, setProducts] = useState<Product[]>([]);
+  const [totalPages, setTotalPages] = useState(1);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const filterByBrand = useCallback((product: { name: string }) => {
-    if (brandFilter.length === 0) return true;
-    const name = product.name.toLowerCase();
-    return brandFilter.some((brand) => name.includes(brand.toLowerCase()));
-  }, [brandFilter]);
+  // Gọi API mỗi khi bộ lọc, sắp xếp hoặc trang bị thay đổi
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setIsLoading(true);
+      try {
+        // 1. Khởi tạo Query Parameters
+        const params = new URLSearchParams({
+          page: page.toString(),
+          limit: PRODUCTS_PER_PAGE.toString(),
+          sort: sort,
+        });
 
-  const filterBySize = useCallback((product: { sizes?: string[] }) => {
-    if (sizeFilter.length === 0) return true;
-    return product.sizes?.some((size) => sizeFilter.includes(size)) ?? true;
-  }, [sizeFilter]);
+        if (priceFilter.length > 0) params.append("price", priceFilter.join(","));
+        if (brandFilter.length > 0) params.append("brand", brandFilter.join(","));
+        if (sizeFilter.length > 0) params.append("size", sizeFilter.join(","));
 
-  // Memoized sorting function
-  const sortProducts = useCallback((a: { price: string }, b: { price: string }) => {
-    const priceA = Number(a.price.replace(/\D/g, ""));
-    const priceB = Number(b.price.replace(/\D/g, ""));
-    if (sort === "asc") return priceA - priceB;
-    if (sort === "desc") return priceB - priceA;
-    return 0;
-  }, [sort]);
+        // 2. Fetch dữ liệu từ backend
+        // TODO: Thay thế bằng URL API thực tế của bạn
+        const res = await fetch(`https://api.yourbackend.com/products?${params.toString()}`);
+        
+        if (!res.ok) throw new Error("Failed to fetch products");
+        
+        const data = await res.json();
 
-  // Memoized filtered and sorted products
-  const filteredProducts = useMemo(() => {
-    return products
-      .filter(filterByPrice)
-      .filter(filterByBrand)
-      .filter(filterBySize)
-      .sort(sortProducts);
-  }, [filterByPrice, filterByBrand, filterBySize, sortProducts]);
+        // 3. Cập nhật state (Giả sử API trả về { products: [...], totalPages: number })
+        setProducts(data.products || []);
+        setTotalPages(data.totalPages || 1);
+      } catch (error) {
+        console.error("Lỗi khi tải sản phẩm:", error);
+        setProducts([]);
+        setTotalPages(1);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  const totalPages = Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE);
+    fetchProducts();
+  }, [page, sort, priceFilter, brandFilter, sizeFilter]);
 
-  // Memoized paginated products
-  const paginatedProducts = useMemo(() => {
-    const startIndex = (page - 1) * PRODUCTS_PER_PAGE;
-    return filteredProducts.slice(startIndex, startIndex + PRODUCTS_PER_PAGE);
-  }, [filteredProducts, page]);
-
-  // Update URL when page changes
+  // Cập nhật trang và cuộn lên đầu
   const updatePage = useCallback((newPage: number) => {
     setPage(newPage);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -313,6 +326,7 @@ export default function AllProducts() {
           <span className="mx-2">{">>"}</span>
           <span className="font-semibold text-primary">Tất cả sản phẩm</span>
         </div>
+        
         <div className="flex gap-8">
           {/* Desktop Sidebar */}
           <FilterSidebar
@@ -330,6 +344,7 @@ export default function AllProducts() {
           <div className="flex-1">
             <div className="flex items-center justify-between mb-6">
               <h1 className="text-3xl font-bold">Tất cả sản phẩm</h1>
+
               <div className="flex items-center gap-3">
                 {/* Mobile Filter Button */}
                 <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
@@ -359,17 +374,11 @@ export default function AllProducts() {
 
                 <span className="hidden sm:inline">Sắp xếp</span>
                 <select
-                  className="border rounded px-3 py-2 text-sm"
+                  className="border rounded px-3 py-2 text-sm outline-none"
                   value={sort}
                   onChange={(e) => {
-                    setSort(
-                      e.target.value === "asc"
-                        ? "asc"
-                        : e.target.value === "desc"
-                        ? "desc"
-                        : "default"
-                    );
-                    setPage(1);
+                    setSort(e.target.value);
+                    setPage(1); // Reset về trang 1 khi đổi sắp xếp
                   }}
                 >
                   <option value="default">Mặc định</option>
@@ -379,16 +388,24 @@ export default function AllProducts() {
               </div>
             </div>
 
-            {/* Loading state */}
-            {paginatedProducts.length === 0 ? (
+            {/* Loading / Empty / Data States */}
+            {isLoading ? (
               <div className="flex items-center justify-center py-12">
-                <Loader2 className="h-8 w-8 animate-spin mr-2" />
-                <span>Đang tải sản phẩm...</span>
+                <Loader2 className="h-8 w-8 animate-spin mr-2 text-primary" />
+                <span className="text-gray-500">Đang tải sản phẩm...</span>
+              </div>
+            ) : products.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-20 text-center">
+                <div className="text-gray-400 mb-2">
+                  <Filter className="w-12 h-12 mx-auto opacity-50" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-700">Không tìm thấy sản phẩm</h3>
+                <p className="text-gray-500 mt-2">Vui lòng thử thay đổi bộ lọc hoặc tìm kiếm khác.</p>
               </div>
             ) : (
               <>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 bg-white">
-                  {paginatedProducts.map((product) => (
+                  {products.map((product, index) => (
                     <Link
                       key={product.id}
                       href={`/products/${product.id}`}
@@ -404,6 +421,7 @@ export default function AllProducts() {
                           Mới
                         </span>
                       )}
+                      
                       {/* Ảnh sản phẩm */}
                       <div className="bg-gray-100 flex items-center justify-center h-56 relative overflow-hidden">
                         <Image
@@ -412,9 +430,10 @@ export default function AllProducts() {
                           width={220}
                           height={220}
                           className="object-contain max-h-52 group-hover:scale-105 transition-transform duration-200"
-                          priority={page === 1 && paginatedProducts.indexOf(product) < 4}
+                          priority={page === 1 && index < 4}
                         />
                       </div>
+                      
                       {/* Thông tin sản phẩm */}
                       <div className="flex flex-col flex-1 px-6 pt-4 pb-6">
                         <div className="font-bold text-lg mb-1 line-clamp-2">{product.name}</div>
@@ -428,7 +447,7 @@ export default function AllProducts() {
                           </span>
                         </div>
                         <div className="mb-4">
-                          <span className="text-primary font-bold text-l">
+                          <span className="text-primary font-bold text-lg">
                             {product.price}
                           </span>
                           {product.originalPrice && (
@@ -445,6 +464,7 @@ export default function AllProducts() {
                     </Link>
                   ))}
                 </div>
+
                 {/* Pagination dưới */}
                 <div className="flex justify-center items-center gap-2 mt-10 text-lg">
                   <Pagination

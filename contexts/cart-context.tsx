@@ -115,7 +115,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     state.items.reduce((total, item) => {
       const product = products.find((p) => String(p.id) === String(item.id));
       if (!product) return total;
-      const price = parseFloat(product.price.replace(/[^0-9.-]+/g, ""));
+      const price = parseFloat(product.price.replace(/[^0-9]/g, ""));
       return total + price * item.quantity;
     }, 0);
 

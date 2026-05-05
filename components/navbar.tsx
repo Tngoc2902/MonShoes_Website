@@ -80,7 +80,7 @@ export default function Navbar() {
               href="/contact"
               className="text-sm font-medium hover:text-primary transition-colors"
             >
-              Giày Order
+              Liên hệ
             </Link>
             {/* <Link
               href="#"
@@ -197,7 +197,7 @@ export default function Navbar() {
                   onClick={() => setMenuOpen(false)}
                   className="block text-lg font-medium text-gray-800 hover:text-primary"
                 >
-                  Giày Order
+                  Liên hệ
                 </Link>
                 <form
                   className="flex items-center gap-2 py-4"

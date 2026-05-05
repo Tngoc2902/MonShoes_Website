@@ -183,7 +183,7 @@ export default function OrderShoesPage() {
           <div className="flex items-center gap-2 text-base mb-6 text-gray-500">
             <span className="font-semibold text-black">Trang chủ</span>
             <span className="mx-1">{">"}</span>
-            <span className="font-semibold text-primary">Giày order</span>
+            <span className="font-semibold text-primary">Liên hệ</span>
           </div>
           <div className="flex gap-8">
             {/* Sidebar filter */}
