@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { fetchProducts } from "@/lib/api-client";
 import { useState, useCallback, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 
@@ -271,29 +272,20 @@ export default function AllProducts() {
 
   // Gọi API mỗi khi bộ lọc, sắp xếp hoặc trang bị thay đổi
   useEffect(() => {
-    const fetchProducts = async () => {
+    const loadProducts = async () => {
       setIsLoading(true);
       try {
-        // 1. Khởi tạo Query Parameters
-        const params = new URLSearchParams({
-          page: page.toString(),
-          limit: PRODUCTS_PER_PAGE.toString(),
-          sort: sort,
+        // 2. Fetch dữ liệu từ API backend nội bộ của Next.js
+        const data = await fetchProducts({
+          page,
+          limit: PRODUCTS_PER_PAGE,
+          sort: sort as "default" | "asc" | "desc",
+          price: priceFilter,
+          brand: brandFilter,
+          size: sizeFilter,
         });
 
-        if (priceFilter.length > 0) params.append("price", priceFilter.join(","));
-        if (brandFilter.length > 0) params.append("brand", brandFilter.join(","));
-        if (sizeFilter.length > 0) params.append("size", sizeFilter.join(","));
-
-        // 2. Fetch dữ liệu từ backend
-        // TODO: Thay thế bằng URL API thực tế của bạn
-        const res = await fetch(`https://api.yourbackend.com/products?${params.toString()}`);
-        
-        if (!res.ok) throw new Error("Failed to fetch products");
-        
-        const data = await res.json();
-
-        // 3. Cập nhật state (Giả sử API trả về { products: [...], totalPages: number })
+        // 3. Cập nhật state từ response { products, totalPages }
         setProducts(data.products || []);
         setTotalPages(data.totalPages || 1);
       } catch (error) {
@@ -305,7 +297,7 @@ export default function AllProducts() {
       }
     };
 
-    fetchProducts();
+    loadProducts();
   }, [page, sort, priceFilter, brandFilter, sizeFilter]);
 
   // Cập nhật trang và cuộn lên đầu

@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useCart } from "@/contexts/cart-context";
+import { applyCoupon, submitOrder } from "@/lib/api-client";
 import { useAuth } from "@/contexts/auth-context";
 import { Card } from "@/components/ui/card";
 import Link from "next/link";
@@ -34,6 +35,7 @@ export default function CheckoutPage() {
   const [shippingMethod, setShippingMethod] = useState("standard");
   const [couponCode, setCouponCode] = useState("");
   const [discountPercent, setDiscountPercent] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
     fullName: "",
@@ -90,22 +92,22 @@ export default function CheckoutPage() {
     maximumFractionDigits: 0,
   });
 
-  const handleApplyCoupon = () => {
-    if (couponCode.toUpperCase() === "WELCOME20") {
-      setDiscountPercent(20);
+  const handleApplyCoupon = async () => {
+    try {
+      const coupon = await applyCoupon(couponCode);
+      setDiscountPercent(coupon.discountPercent);
       toast.success("Áp dụng mã giảm giá thành công!");
-    } else if (couponCode.toUpperCase() === "WELCOME10") {
-      setDiscountPercent(10);
-      toast.success("Áp dụng mã giảm giá thành công!");
-    } else {
-      toast.error("Mã giảm giá không hợp lệ");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Mã giảm giá không hợp lệ";
+      setDiscountPercent(0);
+      toast.error(message);
     }
   };
 
   const isShippingComplete = formData.fullName && formData.phone && formData.email && formData.address;
   const isPaymentComplete = cardData.cardName && cardData.cardNumber && cardData.expiry && cardData.cvv;
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (cartItems.length === 0) {
       toast.error("Giỏ hàng của bạn đang trống.");
@@ -120,9 +122,30 @@ export default function CheckoutPage() {
       toast.error("Vui lòng điền đầy đủ thông tin thẻ thanh toán");
       return;
     }
-    toast.success("Đặt hàng thành công!");
-    clearCart();
-    router.push("/");
+
+    setIsSubmitting(true);
+    try {
+      const result = await submitOrder({
+        customer: formData,
+        items: cartItems.map((item) => ({
+          productId: item.product.id,
+          quantity: item.quantity,
+          size: item.size,
+        })),
+        paymentMethod,
+        shippingMethod,
+        couponCode,
+      });
+
+      toast.success(`Đặt hàng thành công! Mã đơn: ${result.order.id}`);
+      clearCart();
+      router.push("/");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Không thể đặt hàng";
+      toast.error(message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -468,9 +491,9 @@ export default function CheckoutPage() {
                     type="submit"
                     form="checkoutForm"
                     className="w-full h-12 text-base"
-                    disabled={!isShippingComplete}
+                    disabled={!isShippingComplete || isSubmitting}
                   >
-                    Hoàn thành đơn hàng
+                    {isSubmitting ? "Đang xử lý..." : "Hoàn thành đơn hàng"}
                   </Button>
                   
                   <Button asChild variant="outline" className="w-full mt-2">
