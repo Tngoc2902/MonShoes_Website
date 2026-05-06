@@ -24,6 +24,52 @@ export default function RootLayout({
   return (
     <html lang="vi">
       <head>
+        <Script id="recover-stale-next-chunks" strategy="beforeInteractive">{`
+          (function () {
+            var STORAGE_KEY = "monshoes:last-chunk-reload";
+            var RELOAD_COOLDOWN_MS = 10000;
+
+            function isChunkLoadError(value) {
+              var message = "";
+
+              if (typeof value === "string") {
+                message = value;
+              } else if (value && typeof value === "object") {
+                message = [value.name, value.message, value.type, value.src]
+                  .filter(Boolean)
+                  .join(" ");
+              }
+
+              return /ChunkLoadError|Loading chunk|_next\/static\/chunks|webpack/i.test(message);
+            }
+
+            function reloadOnce() {
+              var now = Date.now();
+              var lastReload = Number(window.sessionStorage.getItem(STORAGE_KEY) || "0");
+
+              if (now - lastReload < RELOAD_COOLDOWN_MS) return;
+
+              window.sessionStorage.setItem(STORAGE_KEY, String(now));
+              window.location.reload();
+            }
+
+            window.addEventListener(
+              "error",
+              function (event) {
+                if (isChunkLoadError(event.error) || isChunkLoadError(event.target)) {
+                  reloadOnce();
+                }
+              },
+              true
+            );
+
+            window.addEventListener("unhandledrejection", function (event) {
+              if (isChunkLoadError(event.reason)) {
+                reloadOnce();
+              }
+            });
+          })();
+        `}</Script>
         <Script id="remove-extension-attrs" strategy="afterInteractive">{`
           (function () {
             try {
