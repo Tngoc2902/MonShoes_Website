@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { useCart } from "@/contexts/cart-context";
+import { submitOrder } from "@/lib/api-client";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
@@ -32,6 +33,7 @@ export default function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
     removeFromCart,
   } = useCart();
   const [activeTab, setActiveTab] = useState("cart");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     fullName: "",
     phone: "",
@@ -50,11 +52,31 @@ export default function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
     return 0;
   };
 
-  const handleSubmit = (e: { preventDefault: () => void }) => {
+  const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
-    toast.success("Đặt hàng thành công!");
-    clearCart();
-    onClose();
+
+    try {
+      setIsSubmitting(true);
+      const result = await submitOrder({
+        customer: formData,
+        items: cartItems.map((item) => ({
+          productId: item.product.id,
+          quantity: item.quantity,
+          size: item.size,
+        })),
+        paymentMethod: "cod",
+        shippingMethod: "standard",
+      });
+
+      toast.success(`Đặt hàng thành công! Mã đơn: ${result.order.id}`);
+      clearCart();
+      onClose();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Không thể đặt hàng";
+      toast.error(message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const cartItems = getCartItems();
@@ -282,8 +304,8 @@ export default function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
                 >
                   Quay lại giỏ hàng
                 </Button>
-                <Button size="lg" className="flex-1" onClick={handleSubmit}>
-                  Thanh toán
+                <Button size="lg" className="flex-1" onClick={handleSubmit} disabled={isSubmitting}>
+                  {isSubmitting ? "Đang xử lý..." : "Thanh toán"}
                 </Button>
               </div>
             </TabsContent>

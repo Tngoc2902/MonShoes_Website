@@ -1,4 +1,4 @@
-import { products } from "@/data/products";
+import { getProductById, getProductIds } from "@/lib/catalog";
 import ProductDetails from "@/app/products/[id]/ProductDetails";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
@@ -9,9 +9,7 @@ interface PageProps {
 
 // Generate static params for all products (Shopify-like pre-generation)
 export async function generateStaticParams() {
-  return products.map((product) => ({
-    id: product.id.toString(),
-  }));
+  return getProductIds().map((id) => ({ id }));
 }
 
 // Enable ISR for product pages
@@ -21,7 +19,7 @@ export const revalidate = 3600; // Revalidate every hour
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
   const productId = parseInt(id, 10);
-  const product = products.find((p) => p.id === productId);
+  const product = getProductById(productId);
 
   if (!product) {
     return {
@@ -48,7 +46,7 @@ export default async function ProductPage({ params }: PageProps) {
   const productId = parseInt(id, 10);
 
   // Tìm sản phẩm dựa trên `id`
-  const product = products.find((p) => p.id === productId);
+  const product = getProductById(productId);
 
   // Xử lý khi không tìm thấy sản phẩm
   if (!product) {
