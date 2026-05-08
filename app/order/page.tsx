@@ -1,314 +1,196 @@
-"use client";
+﻿"use client";
 
 import Footer from "@/components/footer";
-import NavbarLogin from "@/components/navbar_login";
-import Image from "next/image";
-import { useEffect, useState } from "react";
-const shoes = [
-  {
-    id: 1,
-    name: "Mizuno Speed 2K | D1GH222915",
-    price: "1.499.000đ",
-    img: "//bizweb.dktcdn.net/thumb/large/100/526/435/products/web-photo-editor-50.jpg?v=1743558375250",
-  },
-  {
-    id: 2,
-    name: 'Mizuno Speed 2K "Black Silver"',
-    price: "1.499.000đ",
-    img: "//bizweb.dktcdn.net/thumb/large/100/526/435/products/web-photo-editor-50.jpg?v=1743558375250",
-  },
-  {
-    id: 3,
-    name: "Mizuno Speed 2K ‘White Silver’",
-    price: "1.499.000đ",
-    img: "//bizweb.dktcdn.net/thumb/large/100/526/435/products/web-photo-editor-50.jpg?v=1743558375250",
-  },
-  {
-    id: 4,
-    name: "Mizuno Cyclone Speed 2 K...",
-    price: "1.499.000đ",
-    img: "//bizweb.dktcdn.net/thumb/large/100/526/435/products/web-photo-editor-49.jpg?v=1743558291143",
-  },
-  {
-    id: 5,
-    name: "Nike Air Max 97 OG Silver Bullet",
-    price: "5.990.000đ",
-    img: "//bizweb.dktcdn.net/thumb/large/100/526/435/products/web-photo-editor-49.jpg?v=1743558291143",
-  },
-  {
-    id: 6,
-    name: "Adidas Ultraboost 21 Triple Black",
-    price: "4.200.000đ",
-    img: "//bizweb.dktcdn.net/thumb/large/100/526/435/products/web-photo-editor-49.jpg?v=1743558291143",
-  },
-  {
-    id: 7,
-    name: "Nike Air Force 1 '07 White",
-    price: "2.800.000đ",
-    img: "//bizweb.dktcdn.net/thumb/large/100/526/435/products/web-photo-editor-49.jpg?v=1743558291143",
-  },
-  {
-    id: 8,
-    name: "Converse Chuck 70 High Top",
-    price: "1.900.000đ",
-    img: "//bizweb.dktcdn.net/thumb/large/100/526/435/products/web-photo-editor-49.jpg?v=1743558291143",
-  },
-  {
-    id: 9,
-    name: "Vans Old Skool Black White",
-    price: "1.600.000đ",
-    img: "//bizweb.dktcdn.net/thumb/large/100/526/435/products/web-photo-editor-49.jpg?v=1743558291143",
-  },
-  {
-    id: 10,
-    name: "New Balance 530 White Silver",
-    price: "2.500.000đ",
-    img: "//bizweb.dktcdn.net/thumb/large/100/526/435/products/web-photo-editor-49.jpg?v=1743558291143",
-  },
-  {
-    id: 11,
-    name: "Mizuno Cyclone Speed 2 K...",
-    price: "1.499.000đ",
-    img: "//bizweb.dktcdn.net/thumb/large/100/526/435/products/web-photo-editor-49.jpg?v=1743558291143",
-  },
-  {
-    id: 12,
-    name: "Mizuno Cyclone Speed 2 K...",
-    price: "1.499.000đ",
-    img: "//bizweb.dktcdn.net/thumb/large/100/526/435/products/web-photo-editor-49.jpg?v=1743558291143",
-  },
-  {
-    id: 13,
-    name: "Mizuno Cyclone Speed 2 K...",
-    price: "1.499.000đ",
-    img: "//bizweb.dktcdn.net/thumb/large/100/526/435/products/web-photo-editor-49.jpg?v=1743558291143",
-  },
-  {
-    id: 14,
-    name: "Mizuno Cyclone Speed 2 K...",
-    price: "1.499.000đ",
-    img: "//bizweb.dktcdn.net/thumb/large/100/526/435/products/web-photo-editor-49.jpg?v=1743558291143",
-  },
-  {
-    id: 15,
-    name: "Mizuno Cyclone Speed 2 K...",
-    price: "1.499.000đ",
-    img: "//bizweb.dktcdn.net/thumb/large/100/526/435/products/web-photo-editor-49.jpg?v=1743558291143",
-  },
-  {
-    id: 16,
-    name: "Mizuno Cyclone Speed 2 K...",
-    price: "1.499.000đ",
-    img: "//bizweb.dktcdn.net/thumb/large/100/526/435/products/web-photo-editor-49.jpg?v=1743558291143",
-  },
-  {
-    id: 17,
-    name: "Mizuno Cyclone Speed 2 K...",
-    price: "1.499.000đ",
-    img: "//bizweb.dktcdn.net/thumb/large/100/526/435/products/web-photo-editor-49.jpg?v=1743558291143",
-  },
-  {
-    id: 18,
-    name: "Mizuno Cyclone Speed 2 K...",
-    price: "1.499.000đ",
-    img: "//bizweb.dktcdn.net/thumb/large/100/526/435/products/web-photo-editor-49.jpg?v=1743558291143",
-  },
-  {
-    id: 19,
-    name: "Mizuno Cyclone Speed 2 K...",
-    price: "1.499.000đ",
-    img: "//bizweb.dktcdn.net/thumb/large/100/526/435/products/web-photo-editor-49.jpg?v=1743558291143",
-  },
-];
+import Navbar from "@/components/navbar";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { useCart } from "@/contexts/cart-context";
+import { useOrderHistory } from "@/hooks/use-order-history";
+import { useAuth } from "@/contexts/auth-context";
+import { ArrowRight, CalendarDays, Package, Repeat, CheckCircle, Clock, Truck, XCircle } from "lucide-react";
+import Link from "next/link";
 
-const priceFilters = [
-  { label: "Dưới 1.000.000đ", value: "1" },
-  { label: "1.000.000đ-3.000.000đ", value: "2" },
-  { label: "3.000.000đ-5.000.000đ", value: "3" },
-  { label: "5.000.000đ-8.000.000đ", value: "4" },
-  { label: "Trên 10.000.000đ", value: "5" },
-];
+export default function OrderHistoryPage() {
+  const { history, total, removeOrder } = useOrderHistory();
+  const { isAuthenticated } = useAuth();
+  const { addToCart } = useCart();
 
-const SHOES_PER_PAGE = 12;
+  const handleReorder = (orderId: string) => {
+    const order = history.find((item) => item.id === orderId);
+    if (!order) return;
+    order.items.forEach((item) => {
+      addToCart(String(item.productId), item.size);
+    });
+  };
 
-export default function OrderShoesPage() {
-  const [selectedPrices, setSelectedPrices] = useState<string[]>([]);
-  const [sort, setSort] = useState("default");
-  const [page, setPage] = useState(1);
-
-  // Lọc giá (demo, thực tế bạn cần xử lý theo giá trị thực)
-  function filterShoes(shoe: { price: string }) {
-    if (selectedPrices.length === 0) return true;
-    const price = Number(shoe.price.replace(/\D/g, ""));
-    return (
-      (selectedPrices.includes("1") && price < 1000000) ||
-      (selectedPrices.includes("2") && price >= 1000000 && price < 3000000) ||
-      (selectedPrices.includes("3") && price >= 3000000 && price < 5000000) ||
-      (selectedPrices.includes("4") && price >= 5000000 && price < 10000000) ||
-      (selectedPrices.includes("5") && price >= 10000000)
-    );
-  }
-
-  // Sắp xếp (demo)
-  const filteredShoes = shoes.filter(filterShoes);
-  const sortedShoes = [...filteredShoes].sort((a, b) => {
-    if (sort === "asc")
-      return (
-        Number(a.price.replace(/\D/g, "")) - Number(b.price.replace(/\D/g, ""))
-      );
-    if (sort === "desc")
-      return (
-        Number(b.price.replace(/\D/g, "")) - Number(a.price.replace(/\D/g, ""))
-      );
-    return 0;
-  });
-
-  // Pagination
-  const totalPages = Math.ceil(sortedShoes.length / SHOES_PER_PAGE);
-  const paginatedShoes = sortedShoes.slice(
-    (page - 1) * SHOES_PER_PAGE,
-    page * SHOES_PER_PAGE
-  );
-
-  // Reset page về 1 khi filter/sort thay đổi
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => setPage(1), [selectedPrices, sort]);
+  const getStatusBadge = (status: string) => {
+    switch (status.toLowerCase()) {
+      case "pending":
+        return (
+          <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 border-yellow-200">
+            <Clock className="w-3 h-3 mr-1" />
+            Chờ xử lý
+          </Badge>
+        );
+      case "processing":
+        return (
+          <Badge variant="secondary" className="bg-blue-100 text-blue-800 border-blue-200">
+            <Package className="w-3 h-3 mr-1" />
+            Đang xử lý
+          </Badge>
+        );
+      case "shipped":
+        return (
+          <Badge variant="secondary" className="bg-purple-100 text-purple-800 border-purple-200">
+            <Truck className="w-3 h-3 mr-1" />
+            Đã giao hàng
+          </Badge>
+        );
+      case "delivered":
+        return (
+          <Badge variant="secondary" className="bg-green-100 text-green-800 border-green-200">
+            <CheckCircle className="w-3 h-3 mr-1" />
+            Đã nhận hàng
+          </Badge>
+        );
+      case "cancelled":
+        return (
+          <Badge variant="secondary" className="bg-red-100 text-red-800 border-red-200">
+            <XCircle className="w-3 h-3 mr-1" />
+            Đã hủy
+          </Badge>
+        );
+      default:
+        return (
+          <Badge variant="outline">
+            {status}
+          </Badge>
+        );
+    }
+  };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-50 to-gray-200">
-      <NavbarLogin />
-      <main className="flex-grow py-8">
-        <div className="container mx-auto max-w-7xl">
-          {/* Breadcrumb */}
-          <div className="flex items-center gap-2 text-base mb-6 text-gray-500">
-            <span className="font-semibold text-black">Trang chủ</span>
-            <span className="mx-1">{">"}</span>
-            <span className="font-semibold text-primary">Liên hệ</span>
+    <div className="min-h-screen flex flex-col">
+      <Navbar />
+      <main className="flex-1 bg-background py-10">
+        <div className="container mx-auto">
+          <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <h1 className="text-3xl font-bold">Lịch sử đơn hàng</h1>
+              <p className="text-muted-foreground">
+                {isAuthenticated
+                  ? `Bạn có ${total} đơn hàng đã lưu.`
+                  : "Vui lòng đăng nhập để xem lịch sử đơn hàng."}
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <Link href="/products">
+                <Button variant="outline">Tiếp tục mua sắm</Button>
+              </Link>
+              <Link href="/wishlist">
+                <Button>Danh sách yêu thích</Button>
+              </Link>
+            </div>
           </div>
-          <div className="flex gap-8">
-            {/* Sidebar filter */}
-            <aside className="w-64 shrink-0 hidden md:block">
-              <div className="bg-white rounded-2xl shadow p-6 mb-6">
-                <div className="font-bold text-lg mb-4">Giá sản phẩm</div>
-                <div className="flex flex-col gap-3">
-                  {priceFilters.map((filter) => (
-                    <label
-                      key={filter.value}
-                      className="flex items-center gap-2 cursor-pointer min-h-[36px]"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={selectedPrices.includes(filter.value)}
-                        onChange={() => {
-                          setSelectedPrices((prev) =>
-                            prev.includes(filter.value)
-                              ? prev.filter((v) => v !== filter.value)
-                              : [...prev, filter.value]
-                          );
-                        }}
-                        className="accent-primary w-5 h-5"
-                      />
-                      <span className="text-base min-w-[180px]">
-                        {filter.label}
-                      </span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-            </aside>
-            {/* Main content */}
-            <section className="flex-1">
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-                <div className="text-xl font-bold text-primary">Sneaker</div>
-                <div className="flex items-center gap-2">
-                  <span className="text-base font-medium">Sắp xếp theo</span>
-                  <select
-                    className="border rounded px-3 py-1 focus:outline-primary"
-                    value={sort}
-                    onChange={(e) => setSort(e.target.value)}
-                  >
-                    <option value="default">Mặc định</option>
-                    <option value="asc">Giá tăng dần</option>
-                    <option value="desc">Giá giảm dần</option>
-                  </select>
-                </div>
-              </div>
-              {/* Grid sản phẩm */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {paginatedShoes.map((shoe) => (
-                  <div
-                    key={shoe.id}
-                    className="bg-white rounded-2xl shadow hover:shadow-xl transition p-4 flex flex-col items-center relative"
-                  >
-                    <button className="absolute top-3 right-3 bg-white rounded-full p-2 shadow hover:bg-primary/10 transition">
-                      <svg
-                        width="20"
-                        height="20"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        className="text-gray-400"
+
+          {!isAuthenticated ? (
+            <div className="rounded-xl border bg-card p-10 text-center">
+              <p className="text-lg font-medium">Bạn cần đăng nhập để xem đơn hàng.</p>
+              <p className="text-sm text-muted-foreground mt-2">
+                Đăng nhập ngay để quản lý đơn hàng và mua lại nhanh.
+              </p>
+            </div>
+          ) : history.length === 0 ? (
+            <div className="rounded-xl border bg-card p-10 text-center">
+              <p className="text-lg font-medium">Chưa có đơn hàng nào.</p>
+              <p className="text-sm text-muted-foreground mt-2">
+                Hoàn tất đơn hàng đầu tiên để xem lịch sử ở đây.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {history.map((order) => (
+                <div key={order.id} className="rounded-3xl border bg-white shadow-sm p-6">
+                  <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                    <div>
+                      <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+                        <CalendarDays className="h-4 w-4" />
+                        <span>{new Date(order.createdAt).toLocaleString("vi-VN")}</span>
+                        <span>•</span>
+                        <span>Mã đơn: {order.id}</span>
+                      </div>
+                      <div className="mt-2 flex items-center gap-2">
+                        {getStatusBadge(order.status)}
+                        <span className="text-sm text-muted-foreground">
+                          Thanh toán: {order.paymentMethod === "card" ? "Thẻ tín dụng" : order.paymentMethod === "cod" ? "COD" : order.paymentMethod}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleReorder(order.id)}
                       >
-                        <path d="M4.318 6.318a4.5 4.5 0 0 1 6.364 0l.318.318.318-.318a4.5 4.5 0 1 1 6.364 6.364l-6.682 6.682a1 1 0 0 1-1.414 0L4.318 12.682a4.5 4.5 0 0 1 0-6.364z" />
-                      </svg>
-                    </button>
-                    <div className="w-full flex-1 flex items-center justify-center mb-4">
-                      <Image
-                        src={shoe.img}
-                        alt={shoe.name}
-                        width={220}
-                        height={110}
-                        className="object-contain max-h-40"
-                      />
+                        <Repeat className="mr-2 h-4 w-4" />
+                        Mua lại
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeOrder(order.id)}
+                      >
+                        Xóa
+                      </Button>
                     </div>
-                    <div className="w-full text-center mt-auto">
-                      <div className="font-bold text-lg truncate">
-                        {shoe.name}
+                  </div>
+
+                  <div className="mt-6 grid gap-4 lg:grid-cols-[1.4fr_0.9fr]">
+                    <div className="space-y-4">
+                      {order.items.map((item) => (
+                        <div key={`${order.id}-${item.productId}-${item.size}`} className="rounded-2xl border p-4">
+                          <div className="flex items-center justify-between gap-4">
+                            <div>
+                              <div className="font-semibold">{item.name}</div>
+                              <div className="text-sm text-muted-foreground">Size {item.size} • Số lượng: {item.quantity}</div>
+                            </div>
+                            <div className="text-right text-sm">
+                              <div className="font-semibold">{item.lineTotal.toLocaleString("vi-VN")} đ</div>
+                              <div className="text-muted-foreground">{item.unitPrice.toLocaleString("vi-VN")} đ / chiếc</div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="rounded-3xl border bg-slate-50 p-5 space-y-3">
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <ArrowRight className="h-4 w-4" />
+                        <span>Tóm tắt đơn hàng</span>
                       </div>
-                      <div className="text-primary font-bold text-xl mt-2">
-                        {shoe.price}
+                      <div className="flex justify-between">
+                        <span>Tạm tính</span>
+                        <span>{order.subtotal.toLocaleString("vi-VN")} đ</span>
+                      </div>
+                      {order.discountAmount > 0 && (
+                        <div className="flex justify-between text-red-600">
+                          <span>Giảm giá ({order.discountPercent}%)</span>
+                          <span>-{order.discountAmount.toLocaleString("vi-VN")} đ</span>
+                        </div>
+                      )}
+                      <div className="flex justify-between">
+                        <span>Phí vận chuyển</span>
+                        <span>{order.shippingCost.toLocaleString("vi-VN")} đ</span>
+                      </div>
+                      <div className="border-t pt-3 flex justify-between font-semibold">
+                        <span>Tổng</span>
+                        <span>{order.total.toLocaleString("vi-VN")} đ</span>
                       </div>
                     </div>
                   </div>
-                ))}
-                {paginatedShoes.length === 0 && (
-                  <div className="col-span-full text-center text-gray-400 py-12">
-                    Không có sản phẩm phù hợp.
-                  </div>
-                )}
-              </div>
-              {/* Pagination */}
-              <div className="flex justify-center items-center gap-2 mt-8">
-                <button
-                  className="w-9 h-9 rounded-full border text-gray-600 hover:bg-primary/10 transition disabled:opacity-50"
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  disabled={page === 1}
-                >
-                  {"<"}
-                </button>
-                {Array.from({ length: totalPages }, (_, i) => (
-                  <button
-                    key={i + 1}
-                    className={`w-9 h-9 rounded-full border font-semibold ${
-                      page === i + 1
-                        ? "bg-primary text-white border-primary shadow"
-                        : "text-gray-700 hover:bg-primary/10"
-                    }`}
-                    onClick={() => setPage(i + 1)}
-                  >
-                    {i + 1}
-                  </button>
-                ))}
-                <button
-                  className="w-9 h-9 rounded-full border text-gray-600 hover:bg-primary/10 transition disabled:opacity-50"
-                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  disabled={page === totalPages}
-                >
-                  {">"}
-                </button>
-              </div>
-            </section>
-          </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </main>
       <Footer />

@@ -5,6 +5,7 @@ import Footer from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/contexts/cart-context";
+import { useWishlist } from "@/hooks/use-wishlist";
 import { motion } from "framer-motion";
 import {
   Heart,
@@ -38,6 +39,7 @@ export default function ProductDetails({ product }: { product: Product }) {
   const [quantity, setQuantity] = useState(1);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const { items, addToCart, updateQuantity } = useCart();
+  const { toggleWishlist, hasInWishlist } = useWishlist();
 
   const handleAddToCart = () => {
     if (!selectedSize) {
@@ -221,7 +223,12 @@ export default function ProductDetails({ product }: { product: Product }) {
               <Button
                 variant="outline"
                 size="icon"
-                className="h-12 w-12 shrink-0"
+                className={`h-12 w-12 shrink-0 transition-colors ${
+                  hasInWishlist(String(product.id))
+                    ? "border-red-500 text-red-500 hover:bg-red-50"
+                    : "border-border hover:border-primary hover:bg-primary/5"
+                }`}
+                onClick={() => toggleWishlist(String(product.id))}
               >
                 <Heart className="h-5 w-5" />
                 <span className="sr-only">Yêu thích</span>
