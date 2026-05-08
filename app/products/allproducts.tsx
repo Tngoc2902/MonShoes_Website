@@ -11,6 +11,7 @@ import {
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
+  Heart,
   ShoppingCart,
   Star,
   Filter,
@@ -19,6 +20,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { fetchProducts } from "@/lib/api-client";
+import { useWishlist } from "@/hooks/use-wishlist";
 import { useState, useCallback, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 
@@ -269,6 +271,7 @@ export default function AllProducts() {
   const [products, setProducts] = useState<Product[]>([]);
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
+  const { wishlist, toggleWishlist, hasInWishlist } = useWishlist();
 
   // Gọi API mỗi khi bộ lọc, sắp xếp hoặc trang bị thay đổi
   useEffect(() => {
@@ -403,6 +406,22 @@ export default function AllProducts() {
                       href={`/products/${product.id}`}
                       className="border rounded-xl bg-white flex flex-col shadow-sm overflow-hidden relative group hover:shadow-lg transition-shadow duration-200"
                     >
+                      <button
+                        type="button"
+                        onClick={(event) => {
+                          event.preventDefault();
+                          event.stopPropagation();
+                          toggleWishlist(String(product.id));
+                        }}
+                        className={`absolute top-4 left-4 z-20 p-2 rounded-full border bg-white/90 shadow-sm transition-colors duration-200 ${
+                          hasInWishlist(String(product.id))
+                            ? "border-red-500 text-red-500"
+                            : "border-gray-200 text-gray-500 hover:border-gray-400 hover:text-gray-700"
+                        }`}
+                      >
+                        <Heart className="w-5 h-5" />
+                      </button>
+
                       {/* Badge giảm giá hoặc mới */}
                       {product.discount ? (
                         <span className="absolute top-4 right-4 bg-red-500 text-white text-sm font-semibold px-4 py-1 rounded-full z-10">

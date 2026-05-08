@@ -9,9 +9,15 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useCart } from "@/contexts/cart-context";
 import { useAuth } from "@/contexts/auth-context";
-import { Menu, Search, ShoppingCart } from "lucide-react";
+import { Menu, Search, ShoppingCart, User } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
@@ -140,17 +146,38 @@ export default function Navbar() {
                 Đăng nhập
               </Button>
             ) : (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => router.push("/account")}
-                type="button"
-                className="hidden md:flex gap-1"
-              >
-                <span className="text-sm font-medium text-gray-700">
-                  {user?.name}
-                </span>
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="hidden md:flex gap-1"
+                  >
+                    <User className="h-4 w-4" />
+                    <span className="text-sm font-medium text-gray-700">
+                      {user?.name}
+                    </span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem asChild>
+                    <Link href="/dashboard" className="cursor-pointer">
+                      Dashboard
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/account" className="cursor-pointer">
+                      Tài khoản của tôi
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={logout}
+                    className="cursor-pointer text-red-600"
+                  >
+                    Đăng xuất
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             )}
             <Button
               variant="ghost"
@@ -222,13 +249,32 @@ export default function Navbar() {
                   <ThemeToggle />
                 </div>
                 {isAuthenticated ? (
-                  <Link
-                    href="/account"
-                    onClick={() => setMenuOpen(false)}
-                    className="block text-lg font-medium text-gray-800 hover:text-primary"
-                  >
-                    Tài khoản của tôi
-                  </Link>
+                  <>
+                    <Link
+                      href="/dashboard"
+                      onClick={() => setMenuOpen(false)}
+                      className="block text-lg font-medium text-gray-800 hover:text-primary"
+                    >
+                      Dashboard
+                    </Link>
+                    <Link
+                      href="/account"
+                      onClick={() => setMenuOpen(false)}
+                      className="block text-lg font-medium text-gray-800 hover:text-primary"
+                    >
+                      Tài khoản của tôi
+                    </Link>
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
+                      onClick={() => {
+                        logout();
+                        setMenuOpen(false);
+                      }}
+                    >
+                      Đăng xuất
+                    </Button>
+                  </>
                 ) : (
                   <Button
                     className="w-full"

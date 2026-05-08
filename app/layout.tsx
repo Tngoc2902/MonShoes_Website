@@ -24,7 +24,7 @@ export default function RootLayout({
   return (
     <html lang="vi">
       <head>
-        <Script id="recover-stale-next-chunks" strategy="beforeInteractive">{`
+        <Script id="recover-stale-next-chunks" strategy="afterInteractive">{`
           (function () {
             var STORAGE_KEY = "monshoes:last-chunk-reload";
             var RELOAD_COOLDOWN_MS = 10000;
@@ -68,33 +68,6 @@ export default function RootLayout({
                 reloadOnce();
               }
             });
-          })();
-        `}</Script>
-        <Script id="remove-extension-attrs" strategy="afterInteractive">{`
-          (function () {
-            try {
-              function cleanExtensionAttrs(el) {
-                if (!el || !el.attributes) return;
-                var attrsToRemove = [];
-                for (var i = 0; i < el.attributes.length; i++) {
-                  var name = el.attributes[i].name;
-                  if (
-                    name === "bis_register" ||
-                    name === "bis_use" ||
-                    name.indexOf("__processed_") === 0 ||
-                    name.indexOf("data-bis") === 0
-                  ) {
-                    attrsToRemove.push(name);
-                  }
-                }
-                attrsToRemove.forEach(function(name) {
-                  el.removeAttribute(name);
-                });
-              }
-
-              cleanExtensionAttrs(document.documentElement);
-              if (document.body) cleanExtensionAttrs(document.body);
-            } catch (e) {}
           })();
         `}</Script>
       </head>

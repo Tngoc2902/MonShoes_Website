@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useCart } from "@/contexts/cart-context";
 import { applyCoupon, submitOrder } from "@/lib/api-client";
 import { useAuth } from "@/contexts/auth-context";
+import { saveOrderHistory } from "@/lib/order-history";
 import { Card } from "@/components/ui/card";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -137,6 +138,31 @@ export default function CheckoutPage() {
         couponCode,
       });
 
+      // Create full order history item with all details
+      const orderHistoryItem = {
+        id: result.order.id,
+        createdAt: result.order.createdAt,
+        total: finalTotal,
+        status: result.order.status,
+        paymentMethod,
+        shippingMethod,
+        couponCode: couponCode || null,
+        discountPercent,
+        shippingCost,
+        subtotal: total,
+        discountAmount,
+        customer: formData,
+        items: cartItems.map((item) => ({
+          productId: item.product.id,
+          name: item.product.name,
+          size: item.size,
+          quantity: item.quantity,
+          unitPrice: parsePrice(item.product.price),
+          lineTotal: parsePrice(item.product.price) * item.quantity,
+        })),
+      };
+
+      saveOrderHistory(orderHistoryItem);
       toast.success(`Đặt hàng thành công! Mã đơn: ${result.order.id}`);
       clearCart();
       router.push("/");
