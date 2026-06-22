@@ -40,7 +40,7 @@ export default function RootLayout({
                   .join(" ");
               }
 
-              return /ChunkLoadError|Loading chunk|_next\/static\/chunks|webpack/i.test(message);
+              return new RegExp("ChunkLoadError|Loading chunk|_next/static/chunks|webpack", "i").test(message);
             }
 
             function reloadOnce() {
