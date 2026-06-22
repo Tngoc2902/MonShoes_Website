@@ -170,6 +170,12 @@ export default function Navbar() {
                       Tài khoản của tôi
                     </Link>
                   </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/wishlist" className="cursor-pointer">Yêu thích</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/order" className="cursor-pointer">Đơn hàng của tôi</Link>
+                  </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={logout}
                     className="cursor-pointer text-red-600"
@@ -204,7 +210,7 @@ export default function Navbar() {
                   Trang chủ
                 </Link>
                 <Link
-                  href="#"
+                  href="/products?sort=discount"
                   onClick={() => setMenuOpen(false)}
                   className="block text-lg font-medium text-gray-800 hover:text-primary"
                 >
