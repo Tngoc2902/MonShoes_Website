@@ -165,7 +165,7 @@ export default function CheckoutPage() {
       saveOrderHistory(orderHistoryItem);
       toast.success(`Đặt hàng thành công! Mã đơn: ${result.order.id}`);
       clearCart();
-      router.push("/");
+      router.push("/order");router.push("/");
     } catch (error) {
       const message = error instanceof Error ? error.message : "Không thể đặt hàng";
       toast.error(message);
